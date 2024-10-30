@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/fe7a0f40-2941-462e-933e-f8f93a52f1b9)
+![image](https://github.com/user-attachments/assets/af18c64a-a33b-409a-a5ee-f77bd9bbb96b)
 
 
 ***[Compatibility for Api requests from continue.dev throught openwebui](https://github.com/xtekky/gpt4free/pull/2310)***
