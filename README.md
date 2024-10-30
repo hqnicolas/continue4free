@@ -12,8 +12,8 @@ Continue.dev "config.json" file
 {
     "models": [
         {
-            "title": "gpt-3.5-turbo:latest",
-            "model": "gpt-3.5-turbo:latest",
+            "title": "gpt-3.5-turbo",
+            "model": "gpt-3.5-turbo",
             "completionOptions": {},
             "useLegacyCompletionsEndpoint": false,
             "apiBase": "https://chat.openwebui.server.br/api",
