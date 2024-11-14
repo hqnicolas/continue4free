@@ -193,13 +193,9 @@ class Api:
                     return JSONResponse(response_list[0].to_json())
 
                 # Streaming response
-                async def async_generator(sync_gen):
-                    for item in sync_gen:
-                        yield item
-
                 async def streaming():
                     try:
-                        async for chunk in async_generator(response):
+                        async for chunk in response:
                             yield f"data: {json.dumps(chunk.to_json())}\n\n"
                     except GeneratorExit:
                         pass
