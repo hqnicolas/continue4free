@@ -4,7 +4,7 @@
 ***[Compatibility for Api requests from continue.dev throught openwebui](https://github.com/xtekky/gpt4free/pull/2310)***
 
 ### to enable usage over openweb ui:
-- connect the openwebui to the 1337 port
+- connect the openwebui to the 1338 port
 - connect the continue.dev to the openwebui:
 
 Continue.dev "config.json" file
@@ -133,7 +133,7 @@ Is your site on this repository and you want to take it down? Send an email to t
 ```sh
 docker pull hlohaus789/g4f
 docker run \
-  -p 8080:8080 -p 1337:1337 -p 7900:7900 \
+  -p 8081:8080 -p 1338:1338 -p 7901:7900 \
   --shm-size="2g" \
   -v ${PWD}/har_and_cookies:/app/har_and_cookies \
   -v ${PWD}/generated_images:/app/generated_images \
@@ -143,7 +143,7 @@ docker run \
 3. **Access the Client:**
 
    - To use the included client, navigate to: [http://localhost:8080/chat/](http://localhost:8080/chat/)
-   - Or set the API base for your client to: [http://localhost:1337/v1](http://localhost:1337/v1)
+   - Or set the API base for your client to: [http://localhost:1338/v1](http://localhost:1338/v1)
 
 4. **(Optional) Provider Login:**
    If required, you can access the container's desktop here: http://localhost:7900/?autoconnect=1&resize=scale&password=secret for provider login purposes.
@@ -257,7 +257,7 @@ python -m g4f.cli gui -port 8080 -debug
 #### Interference API
 You can use the Interference API to serve other OpenAI integrations with G4F.
 **See docs:** [/docs/interference](docs/interference-api.md)
-**Access with:** http://localhost:1337/v1
+**Access with:** http://localhost:1338/v1
 
 ### Configuration
 

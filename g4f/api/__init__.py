@@ -257,7 +257,7 @@ def format_exception(e: Exception, config: Union[ChatCompletionsConfig, ImageGen
 
 def run_api(
     host: str = '0.0.0.0',
-    port: int = 1337,
+    port: int = 1338,
     bind: str = None,
     debug: bool = False,
     workers: int = None,

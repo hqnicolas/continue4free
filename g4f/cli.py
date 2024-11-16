@@ -9,7 +9,7 @@ def main():
     parser = argparse.ArgumentParser(description="Run gpt4free")
     subparsers = parser.add_subparsers(dest="mode", help="Mode to run the g4f in.")
     api_parser = subparsers.add_parser("api")
-    api_parser.add_argument("--bind", default="0.0.0.0:1337", help="The bind string.")
+    api_parser.add_argument("--bind", default="0.0.0.0:1338", help="The bind string.")
     api_parser.add_argument("--debug", action="store_true", help="Enable verbose logging.")
     api_parser.add_argument("--model", default=None, help="Default model for chat completion. (incompatible with --reload and --workers)")
     api_parser.add_argument("--provider", choices=[provider.__name__ for provider in Provider.__providers__ if provider.working],
