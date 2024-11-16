@@ -62,7 +62,7 @@ client = Client(
 **Here’s an improved example of creating chat completions:**
 ```python
 response = client.chat.completions.create(
-    model="gpt-4o-mini",
+    model="gpt-3.5-turbo",
     messages=[
         {
             "role": "user",
@@ -104,7 +104,7 @@ from g4f.client import Client
 client = Client()
 
 response = client.chat.completions.create(
-    model="gpt-4o-mini",
+    model="gpt-3.5-turbo",
     messages=[
         {
             "role": "user",

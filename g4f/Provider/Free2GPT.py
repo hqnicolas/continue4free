@@ -16,7 +16,7 @@ class Free2GPT(AsyncGeneratorProvider, ProviderModelMixin):
     url = "https://chat10.free2gpt.xyz"
     working = True
     supports_message_history = True
-    default_model = 'mistral-7b'
+    default_model = 'llama-3.1-70b'
 
     @classmethod
     async def create_async_generator(
@@ -49,8 +49,12 @@ class Free2GPT(AsyncGeneratorProvider, ProviderModelMixin):
             connector=get_connector(connector, proxy), headers=headers
         ) as session:
             timestamp = int(time.time() * 1e3)
+            system_message = {
+                "role": "system",
+                "content": ""
+            }
             data = {
-                "messages": messages,
+                "messages": [system_message] + messages,
                 "time": timestamp,
                 "pass": None,
                 "sign": generate_signature(timestamp, messages[-1]["content"]),

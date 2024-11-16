@@ -55,6 +55,7 @@ def get_model_and_provider(model    : Union[Model, str],
         provider = convert_to_provider(provider)
 
     if isinstance(model, str):
+        
         if model in ModelUtils.convert:
             model = ModelUtils.convert[model]
     
@@ -74,11 +75,11 @@ def get_model_and_provider(model    : Union[Model, str],
     if not ignore_working and not provider.working:
         raise ProviderNotWorkingError(f'{provider.__name__} is not working')
 
-    if isinstance(provider, BaseRetryProvider):
-        if not ignore_working:
-            provider.providers = [p for p in provider.providers if p.working]
-        if ignored:
-            provider.providers = [p for p in provider.providers if p.__name__ not in ignored]
+    if not ignore_working and isinstance(provider, BaseRetryProvider):
+        provider.providers = [p for p in provider.providers if p.working]
+
+    if ignored and isinstance(provider, BaseRetryProvider):
+        provider.providers = [p for p in provider.providers if p.__name__ not in ignored]
 
     if not ignore_stream and not provider.supports_stream and stream:
         raise StreamNotSupportedError(f'{provider.__name__} does not support "stream" argument')
@@ -94,7 +95,7 @@ def get_model_and_provider(model    : Union[Model, str],
 
     return model, provider
 
-def get_last_provider(as_dict: bool = False) -> Union[ProviderType, dict[str, str], None]:
+def get_last_provider(as_dict: bool = False) -> Union[ProviderType, dict[str, str]]:
     """
     Retrieves the last used provider.
 
@@ -107,14 +108,11 @@ def get_last_provider(as_dict: bool = False) -> Union[ProviderType, dict[str, st
     last = debug.last_provider
     if isinstance(last, BaseRetryProvider):
         last = last.last_provider
-    if as_dict:
-        if last:
-            return {
-                "name": last.__name__,
-                "url": last.url,
-                "model": debug.last_model,
-                "label": getattr(last, "label", None) if hasattr(last, "label") else None
-            }
-        else:
-            return {}
+    if last and as_dict:
+        return {
+            "name": last.__name__,
+            "url": last.url,
+            "model": debug.last_model,
+            "label": last.label if hasattr(last, "label") else None
+        }
     return last

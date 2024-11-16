@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from typing import Union
-from time import time
 
 class Model():
     ...
@@ -109,18 +108,8 @@ class Image(Model):
         return self.__dict__
 
 class ImagesResponse(Model):
-    data: list[Image]
-    model: str
-    provider: str
-    created: int
-
-    def __init__(self, data: list[Image], created: int = None, model: str = None, provider: str = None) -> None:
+    def __init__(self, data: list[Image], created: int = 0) -> None:
         self.data = data
-        if created is None:
-            created = int(time())
-        self.model = model
-        if provider is not None:
-            self.provider = provider
         self.created = created
 
     def to_json(self):
