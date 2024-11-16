@@ -55,6 +55,7 @@ class OpenaiChat(AsyncGeneratorProvider, ProviderModelMixin):
     label = "OpenAI ChatGPT"
     url = "https://chatgpt.com"
     working = True
+    needs_auth = True
     supports_gpt_4 = True
     supports_message_history = True
     supports_system_message = True
@@ -195,7 +196,7 @@ class OpenaiChat(AsyncGeneratorProvider, ProviderModelMixin):
             async with session.get(url, headers=headers) as response:
                 cls._update_request_args(session)
                 if response.status == 401:
-                    raise MissingAuthError('Add a "api_key" or a .har file' if cls._api_key is None else "Invalid api key")
+                    raise MissingAuthError('Add a .har file for OpenaiChat' if cls._api_key is None else "Invalid api key")
                 await raise_for_status(response)
                 data = await response.json()
                 if "categories" in data:
