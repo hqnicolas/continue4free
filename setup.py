@@ -13,7 +13,8 @@ INSTALL_REQUIRE = [
     "aiohttp",
     "brotli",
     "pycryptodome",
-    "nest_asyncio",
+    "curl_cffi>=0.6.2",
+    "cloudscraper" # Cloudflare
 ]
 
 EXTRA_REQUIRE = {
@@ -21,19 +22,26 @@ EXTRA_REQUIRE = {
         "curl_cffi>=0.6.2",
         "certifi",
         "browser_cookie3",         # get_cookies
+        "PyExecJS",                # GptForLove, Vercel
         "duckduckgo-search>=5.0"  ,# internet.search
         "beautifulsoup4",          # internet.search and bing.create_images
         "brotli",                  # openai, bing
+        # webdriver
+        #"undetected-chromedriver>=3.5.5",
+        #"setuptools", 
+        #"selenium-wire"
+        # webview
+        "pywebview",
         "platformdirs",
+        "plyer",
         "cryptography",
         "aiohttp_socks",           # proxy
         "pillow",                  # image
         "cairosvg",                # svg image
         "werkzeug", "flask",       # gui
-        "fastapi",                 # api
+        "loguru", "fastapi",       # api
         "uvicorn", "nest_asyncio", # api
-        "pycryptodome",            # openai
-        "nodriver",
+        "pycryptodome"             # openai
     ],
     "image": [
         "pillow",
@@ -52,9 +60,12 @@ EXTRA_REQUIRE = {
         "plyer",
         "cryptography"
     ],
+    "openai": [
+        "pycryptodome"
+    ],
     "api": [
         "loguru", "fastapi",
-        "uvicorn",
+        "uvicorn", "nest_asyncio"
     ],
     "gui": [
         "werkzeug", "flask",

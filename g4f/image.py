@@ -23,11 +23,6 @@ EXTENSIONS_MAP: dict[str, str] = {
     "image/webp": "webp",
 }
 
-def fix_url(url:str) -> str:
-    """ replace ' ' by '+' (to be markdown compliant)"""
-    return url.replace(" ","+")
-    
-
 def to_image(image: ImageType, is_svg: bool = False) -> Image:
     """
     Converts the input image to a PIL Image object.
@@ -217,12 +212,12 @@ def format_images_markdown(images: Union[str, list], alt: str, preview: Union[st
         str: The formatted markdown string.
     """
     if isinstance(images, str):
-        result = f"[![{alt}]({fix_url(preview.replace('{image}', images) if preview else images)})]({fix_url(images)})"
+        result = f"[![{alt}]({preview.replace('{image}', images) if preview else images})]({images})"
     else:
         if not isinstance(preview, list):
             preview = [preview.replace('{image}', image) if preview else image for image in images]
         result = "\n".join(
-            f"[![#{idx+1} {alt}]({fix_url(preview[idx])})]({fix_url(image)})"
+            f"[![#{idx+1} {alt}]({preview[idx]})]({image})"
             #f'[<img src="{preview[idx]}" width="200" alt="#{idx+1} {alt}">]({image})'
             for idx, image in enumerate(images)
         )
