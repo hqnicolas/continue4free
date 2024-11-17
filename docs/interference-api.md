@@ -45,7 +45,7 @@ g4f api
 python -m g4f.api.run
 ```
 
-**Once running, the API will be accessible at:** `http://localhost:1337/v1`
+**Once running, the API will be accessible at:** `http://localhost:1338/v1`
 
 **(Advanced) Bind to custom port:**
 ```bash
@@ -59,7 +59,7 @@ python -m g4f.cli api --bind "0.0.0.0:2400"
 
 **For text generation:**
 ```bash
-curl -X POST "http://localhost:1337/v1/chat/completions" \
+curl -X POST "http://localhost:1338/v1/chat/completions" \
      -H "Content-Type: application/json" \
      -d '{
            "messages": [
@@ -75,7 +75,7 @@ curl -X POST "http://localhost:1337/v1/chat/completions" \
 **For image generation:**
 1. **url:**
 ```bash
-curl -X POST "http://localhost:1337/v1/images/generate" \
+curl -X POST "http://localhost:1338/v1/images/generate" \
      -H "Content-Type: application/json" \
      -d '{
            "prompt": "a white siamese cat",
@@ -86,7 +86,7 @@ curl -X POST "http://localhost:1337/v1/images/generate" \
 
 2. **b64_json**
 ```bash
-curl -X POST "http://localhost:1337/v1/images/generate" \
+curl -X POST "http://localhost:1338/v1/images/generate" \
      -H "Content-Type: application/json" \
      -d '{
            "prompt": "a white siamese cat",
@@ -104,7 +104,7 @@ from openai import OpenAI
 
 client = OpenAI(
     api_key="",
-    base_url="http://localhost:1337/v1"
+    base_url="http://localhost:1338/v1"
 )
 
 response = client.chat.completions.create(
@@ -132,7 +132,7 @@ else:
 ```python
 import requests
 
-url = "http://localhost:1337/v1/chat/completions"
+url = "http://localhost:1338/v1/chat/completions"
 
 body = {
     "model": "gpt-3.5-turbo",

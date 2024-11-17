@@ -1,5 +1,5 @@
 import requests
-url = "http://localhost:1337/v1/images/generations"
+url = "http://localhost:1338/v1/images/generations"
 body = {
     "prompt": "heaven for dogs",
     "provider": "OpenaiAccount",
