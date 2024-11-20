@@ -33,7 +33,7 @@
    ```
 
 3. **Access the API**
-   The server will be accessible at `http://localhost:1337`
+   The server will be accessible at `http://localhost:1340`
 
 ### Non-Docker Method
 If you encounter issues with Docker, you can run the project directly using Python:
@@ -55,13 +55,13 @@ If you encounter issues with Docker, you can run the project directly using Pyth
    ```
 
 4. **Access the API**
-   The server will be accessible at `http://localhost:1337`
+   The server will be accessible at `http://localhost:1340`
 
 ## Testing the API
 **You can test the API using curl or by creating a simple Python script:**
 ### Using curl
 ```bash
-curl -X POST -H "Content-Type: application/json" -d '{"prompt": "What is the capital of France?"}' http://localhost:1337/chat/completions
+curl -X POST -H "Content-Type: application/json" -d '{"prompt": "What is the capital of France?"}' http://localhost:1340/chat/completions
 ```
 
 ### Using Python
@@ -69,7 +69,7 @@ curl -X POST -H "Content-Type: application/json" -d '{"prompt": "What is the cap
 ```python
 import requests
 
-url = "http://localhost:1337/v1/chat/completions"
+url = "http://localhost:1340/v1/chat/completions"
 body = {
     "model": "gpt-4o-mini", 
     "stream": False,

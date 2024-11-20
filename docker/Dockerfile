@@ -14,7 +14,7 @@ ENV G4F_NO_GUI $G4F_NO_GUI
 ENV SE_SCREEN_WIDTH 1850
 ENV PYTHONUNBUFFERED 1
 ENV G4F_DIR /app
-ENV G4F_LOGIN_URL http://localhost:7900/?autoconnect=1&resize=scale&password=$G4F_PASS
+ENV G4F_LOGIN_URL http://localhost:7904/?autoconnect=1&resize=scale&password=$G4F_PASS
 ENV HOME /home/$G4F_USER
 ENV PATH $PATH:$HOME/.local/bin
 ENV SE_DOWNLOAD_DIR $HOME/Downloads
@@ -83,4 +83,4 @@ RUN pip install --break-system-packages --upgrade pip \
 ADD --chown=$G4F_USER:$G4F_USER g4f $G4F_DIR/g4f
 
 # Expose ports
-EXPOSE 8080 1337
+EXPOSE 8084 1340

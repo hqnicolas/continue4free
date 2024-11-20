@@ -37,7 +37,7 @@ Running Python applications on your smartphone is possible with specialized apps
 
      from g4f.gui import run_gui
 
-     run_gui("0.0.0.0", 8080, debug=True)
+     run_gui("0.0.0.0", 8084, debug=True)
      ```
      Replace `"cookie value"` with your actual cookie value from Bing if you intend to create images using Bing.
 
@@ -45,6 +45,6 @@ Running Python applications on your smartphone is possible with specialized apps
    - Run the script by clicking on the play button or selecting the option to execute it.
 
 7. **Access the GUI:**
-   - Wait for the server to start, and once it's running, open the GUI using the URL provided in the output. [http://localhost:8080/chat/](http://localhost:8080/chat/)
+   - Wait for the server to start, and once it's running, open the GUI using the URL provided in the output. [http://localhost:8084/chat/](http://localhost:8084/chat/)
 
 By following these steps, you can successfully run the G4F GUI on your smartphone using Pydroid, allowing you to create and interact with graphical interfaces directly from your device.
