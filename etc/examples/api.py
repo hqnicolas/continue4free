@@ -1,6 +1,6 @@
 import requests
 import json
-url = "http://localhost:1337/v1/chat/completions"
+url = "http://localhost:1341/v1/chat/completions"
 body = {
     "model": "",
     "provider": "",

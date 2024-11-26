@@ -4,7 +4,7 @@
 ***[Compatibility for Api requests from continue.dev throught openwebui](https://github.com/xtekky/gpt4free/pull/2310)***
 
 ### to enable usage over openweb ui:
-- connect the openwebui to the 1337 port
+- connect the openwebui to the 1341 port
 - connect the continue.dev to the openwebui:
 
 Continue.dev "config.json" file
@@ -133,7 +133,7 @@ Is your site on this repository and you want to take it down? Send an email to t
 ```sh
 docker pull hlohaus789/g4f
 docker run \
-  -p 8080:8080 -p 1337:1337 -p 7900:7900 \
+  -p 8083:8083 -p 1341:1341 -p 7903:7903 \
   --shm-size="2g" \
   -v ${PWD}/har_and_cookies:/app/har_and_cookies \
   -v ${PWD}/generated_images:/app/generated_images \
@@ -142,11 +142,11 @@ docker run \
 
 3. **Access the Client:**
 
-   - To use the included client, navigate to: [http://localhost:8080/chat/](http://localhost:8080/chat/)
-   - Or set the API base for your client to: [http://localhost:1337/v1](http://localhost:1337/v1)
+   - To use the included client, navigate to: [http://localhost:8083/chat/](http://localhost:8083/chat/)
+   - Or set the API base for your client to: [http://localhost:1341/v1](http://localhost:1341/v1)
 
 4. **(Optional) Provider Login:**
-   If required, you can access the container's desktop here: http://localhost:7900/?autoconnect=1&resize=scale&password=secret for provider login purposes.
+   If required, you can access the container's desktop here: http://localhost:7903/?autoconnect=1&resize=scale&password=secret for provider login purposes.
 
 #### Installation Guide for Windows (.exe)
 
@@ -156,7 +156,7 @@ To ensure the seamless operation of our application, please follow the instructi
 
 1. **Download the Application**: Visit our [releases page](https://github.com/xtekky/gpt4free/releases/tag/0.3.1.7) and download the most recent version of the application, named `g4f.exe.zip`.
 2. **File Placement**: After downloading, locate the `.zip` file in your Downloads folder. Unpack it to a directory of your choice on your system, then execute the `g4f.exe` file to run the app.
-3. **Open GUI**: The app starts a web server with the GUI. Open your favorite browser and navigate to `http://localhost:8080/chat/` to access the application interface.
+3. **Open GUI**: The app starts a web server with the GUI. Open your favorite browser and navigate to `http://localhost:8083/chat/` to access the application interface.
 4. **Firewall Configuration (Hotfix)**: Upon installation, it may be necessary to adjust your Windows Firewall settings to allow the application to operate correctly. To do this, access your Windows Firewall settings and allow the application.
 
 By following these steps, you should be able to successfully install and run the application on your Windows system. If you encounter any issues during the installation process, please refer to our Issue Tracker or try to get contact over Discord for assistance.
@@ -251,13 +251,13 @@ run_gui()
 ```
 or execute the following command:
 ```bash
-python -m g4f.cli gui -port 8080 -debug
+python -m g4f.cli gui -port 8083 -debug
 ```
 
 #### Interference API
 You can use the Interference API to serve other OpenAI integrations with G4F.
 **See docs:** [/docs/interference](docs/interference-api.md)
-**Access with:** http://localhost:1337/v1
+**Access with:** http://localhost:1341/v1
 
 ### Configuration
 

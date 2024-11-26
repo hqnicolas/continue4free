@@ -8,7 +8,7 @@ try:
 except ImportError as e:
     import_error = e
 
-def run_gui(host: str = '0.0.0.0', port: int = 8080, debug: bool = False) -> None:
+def run_gui(host: str = '0.0.0.0', port: int = 8083, debug: bool = False) -> None:
     if import_error is not None:
         raise MissingRequirementsError(f'Install "gui" requirements | pip install -U g4f[gui]\n{import_error}')
 

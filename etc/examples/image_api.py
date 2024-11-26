@@ -1,5 +1,5 @@
 import requests
-url = "http://localhost:1337/v1/images/generations"
+url = "http://localhost:1341/v1/images/generations"
 body = {
     "model": "dall-e",
     "prompt": "hello world user",
