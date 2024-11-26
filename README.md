@@ -4,7 +4,7 @@
 ***[Compatibility for Api requests from continue.dev throught openwebui](https://github.com/xtekky/gpt4free/pull/2310)***
 
 ### to enable usage over openweb ui:
-- connect the openwebui to the 1341 port
+- connect the openwebui to the 1337 port
 - connect the continue.dev to the openwebui:
 
 Continue.dev "config.json" file
