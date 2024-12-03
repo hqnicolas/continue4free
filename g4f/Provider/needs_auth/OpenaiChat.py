@@ -22,10 +22,10 @@ from ...requests.raise_for_status import raise_for_status
 from ...requests import StreamSession
 from ...requests import get_nodriver
 from ...image import ImageResponse, ImageRequest, to_image, to_bytes, is_accepted_format
-from ...errors import MissingAuthError
+from ...errors import MissingAuthError, NoValidHarFileError
 from ...providers.response import BaseConversation, FinishReason, SynthesizeData
 from ..helper import format_cookies
-from ..openai.har_file import get_request_config, NoValidHarFileError
+from ..openai.har_file import get_request_config
 from ..openai.har_file import RequestConfig, arkReq, arkose_url, start_url, conversation_url, backend_url, backend_anon_url
 from ..openai.proofofwork import generate_proof_token
 from ..openai.new import get_requirements_token
@@ -58,7 +58,8 @@ class OpenaiChat(AsyncGeneratorProvider, ProviderModelMixin):
     supports_system_message = True
     default_model = "auto"
     default_vision_model = "gpt-4o"
-    fallback_models = [default_model, "gpt-4", "gpt-4o", "gpt-4o-mini", "gpt-4o-canmore", "o1-preview", "o1-mini"]
+    default_image_model = "dall-e-3"
+    fallback_models = [default_model, "gpt-4", "gpt-4o", "gpt-4o-mini", "gpt-4o-canmore", "o1-preview", "o1-mini", default_image_model]
     vision_models = fallback_models
     image_models = fallback_models
     synthesize_content_type = "audio/mpeg"
@@ -76,6 +77,7 @@ class OpenaiChat(AsyncGeneratorProvider, ProviderModelMixin):
                 response.raise_for_status()
                 data = response.json()
                 cls.models = [model.get("slug") for model in data.get("models")]
+                cls.models.append(cls.default_image_model)
             except Exception:
                 cls.models = cls.fallback_models
         return cls.models
@@ -126,10 +128,13 @@ class OpenaiChat(AsyncGeneratorProvider, ProviderModelMixin):
             data=data_bytes,
             headers={
                 "Content-Type": image_data["mime_type"],
-                "x-ms-blob-type": "BlockBlob"
+                "x-ms-blob-type": "BlockBlob",
+                "x-ms-version": "2020-04-08",
+                "Origin": "https://chatgpt.com",
+                "Referer": "https://chatgpt.com/",
             }
         ) as response:
-            await raise_for_status(response, "Send file failed")
+            await raise_for_status(response)
         # Post the file ID to the service and get the download URL
         async with session.post(
             f"{cls.url}/backend-api/files/{image_data['file_id']}/uploaded",
@@ -160,7 +165,7 @@ class OpenaiChat(AsyncGeneratorProvider, ProviderModelMixin):
             "id": str(uuid.uuid4()),
             "create_time": int(time.time()),
             "id": str(uuid.uuid4()),
-            "metadata": {"serialization_metadata": {"custom_symbol_offsets": []}, "system_hints": system_hints}, 
+            "metadata": {"serialization_metadata": {"custom_symbol_offsets": []}, "system_hints": system_hints},
         } for message in messages]
 
         # Check if there is an image response
@@ -270,6 +275,8 @@ class OpenaiChat(AsyncGeneratorProvider, ProviderModelMixin):
         Raises:
             RuntimeError: If an error occurs during processing.
         """
+        if model == cls.default_image_model:
+            model = cls.default_model
         await cls.login(proxy)
 
         async with StreamSession(
@@ -403,7 +410,8 @@ class OpenaiChat(AsyncGeneratorProvider, ProviderModelMixin):
         if isinstance(line, dict) and "v" in line:
             v = line.get("v")
             if isinstance(v, str) and fields.is_recipient:
-                yield v
+                if "p" not in line or line.get("p") == "/message/content/parts/0":
+                    yield v
             elif isinstance(v, list) and fields.is_recipient:
                 for m in v:
                     if m.get("p") == "/message/content/parts/0":
@@ -416,7 +424,7 @@ class OpenaiChat(AsyncGeneratorProvider, ProviderModelMixin):
                     fields.conversation_id = v.get("conversation_id")
                     debug.log(f"OpenaiChat: New conversation: {fields.conversation_id}")
                 m = v.get("message", {})
-                fields.is_recipient = m.get("recipient") == "all"
+                fields.is_recipient = m.get("recipient", "all") == "all"
                 if fields.is_recipient:
                     c = m.get("content", {})
                     if c.get("content_type") == "multimodal_text":
@@ -424,10 +432,10 @@ class OpenaiChat(AsyncGeneratorProvider, ProviderModelMixin):
                         for element in c.get("parts"):
                             if isinstance(element, dict) and element.get("content_type") == "image_asset_pointer":
                                 image = cls.get_generated_image(session, cls._headers, element)
-                                if image is not None:
-                                    generated_images.append(image)
+                                generated_images.append(image)
                         for image_response in await asyncio.gather(*generated_images):
-                            yield image_response
+                            if image_response is not None:
+                                yield image_response
                     if m.get("author", {}).get("role") == "assistant":
                         fields.message_id = v.get("message", {}).get("id")
             return

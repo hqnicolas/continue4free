@@ -13,6 +13,7 @@ from copy import deepcopy
 from .crypt import decrypt, encrypt
 from ...requests import StreamSession
 from ...cookies import get_cookies_dir
+from ...errors import NoValidHarFileError
 from ... import debug
 
 arkose_url = "https://tcr9i.chat.openai.com/fc/gt2/public_key/35536E1E-65B4-4D96-9D97-6ADB7EFF8147"
@@ -20,9 +21,6 @@ backend_url = "https://chatgpt.com/backend-api/conversation"
 backend_anon_url = "https://chatgpt.com/backend-anon/conversation"
 start_url = "https://chatgpt.com/"
 conversation_url = "https://chatgpt.com/c/"
-
-class NoValidHarFileError(Exception):
-    pass
 
 class RequestConfig:
     cookies: dict = None
@@ -45,7 +43,7 @@ class arkReq:
         self.arkCookies = arkCookies
         self.userAgent = userAgent
 
-def readHAR():
+def get_har_files():
     harPath = []
     for root, _, files in os.walk(get_cookies_dir()):
         for file in files:
@@ -53,7 +51,11 @@ def readHAR():
                 harPath.append(os.path.join(root, file))
     if not harPath:
         raise NoValidHarFileError("No .har file found")
-    for path in harPath:
+    harPath.sort(key=lambda x: os.path.getmtime(x))
+    return harPath
+
+def readHAR():
+    for path in get_har_files():
         with open(path, 'rb') as file:
             try:
                 harFile = json.loads(file.read())

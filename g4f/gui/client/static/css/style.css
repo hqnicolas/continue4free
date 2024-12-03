@@ -477,6 +477,7 @@ body.white .gradient{
     right: 8px;
     top: 8px;
     z-index: 1000;
+    cursor: pointer;
 }
 
 .count_total {
@@ -1061,6 +1062,47 @@ a:-webkit-any-link {
     position: absolute;
     white-space: nowrap;
     width: 1px;
+}
+
+.hljs-iframe-button, .hljs-iframe-close {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    padding: 7px;
+    border-radius: .25rem;
+    border: 1px solid #ffffff22;
+    background-color: #2d2b57;
+    color: #fff;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+}
+
+.hljs-iframe-button:hover, .hljs-iframe-close:hover {
+    border-color: #ffffff44;
+    color: #ffffff77;
+}
+
+.hljs-iframe-container {
+    position: fixed;
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000001;
+    background-color: #fff;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+}
+
+.hljs-iframe {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    border: none;
+    overflow: auto;
 }
 
 .white {
