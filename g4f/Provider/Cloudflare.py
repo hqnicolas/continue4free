@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import asyncio
 import json
-import uuid
 
 from ..typing import AsyncResult, Messages, Cookies
 from .base_provider import AsyncGeneratorProvider, ProviderModelMixin, get_running_loop
 from ..requests import Session, StreamSession, get_args_from_nodriver, raise_for_status, merge_cookies
-from ..errors import ResponseStatusError
+from ..requests import DEFAULT_HEADERS, has_nodriver, has_curl_cffi
+from ..providers.response import FinishReason
+from ..errors import ResponseStatusError, ModelNotFoundError
 
 class Cloudflare(AsyncGeneratorProvider, ProviderModelMixin):
     label = "Cloudflare AI"
@@ -36,19 +37,21 @@ class Cloudflare(AsyncGeneratorProvider, ProviderModelMixin):
     def get_models(cls) -> str:
         if not cls.models:
             if cls._args is None:
-                get_running_loop(check_nested=True)
-                args = get_args_from_nodriver(cls.url, cookies={
-                    '__cf_bm': uuid.uuid4().hex,
-                })
-                cls._args = asyncio.run(args)
+                if has_nodriver:
+                    get_running_loop(check_nested=True)
+                    args = get_args_from_nodriver(cls.url)
+                    cls._args = asyncio.run(args)
+                elif not has_curl_cffi:
+                    return cls.models
+                else:
+                    cls._args = {"headers": DEFAULT_HEADERS, "cookies": {}}
             with Session(**cls._args) as session:
                 response = session.get(cls.models_url)
-                cls._args["cookies"] = merge_cookies(cls._args["cookies"] , response)
+                cls._args["cookies"] = merge_cookies(cls._args["cookies"], response)
                 try:
                     raise_for_status(response)
-                except ResponseStatusError as e:
-                    cls._args = None
-                    raise e
+                except ResponseStatusError:
+                    return cls.models
                 json_data = response.json()
                 cls.models = [model.get("name") for model in json_data.get("models")]
         return cls.models
@@ -64,9 +67,15 @@ class Cloudflare(AsyncGeneratorProvider, ProviderModelMixin):
         timeout: int = 300,
         **kwargs
     ) -> AsyncResult:
-        model = cls.get_model(model)
         if cls._args is None:
-            cls._args = await get_args_from_nodriver(cls.url, proxy, timeout, cookies)
+            if has_nodriver:
+                cls._args = await get_args_from_nodriver(cls.url, proxy, timeout, cookies)
+            else:
+                cls._args = {"headers": DEFAULT_HEADERS, "cookies": {}}
+        try:
+            model = cls.get_model(model)
+        except ModelNotFoundError:
+            pass
         data = {
             "messages": messages,
             "lora": None,
@@ -82,9 +91,10 @@ class Cloudflare(AsyncGeneratorProvider, ProviderModelMixin):
                 cls._args["cookies"] = merge_cookies(cls._args["cookies"] , response)
                 try:
                     await raise_for_status(response)
-                except ResponseStatusError as e:
+                except ResponseStatusError:
                     cls._args = None
-                    raise e
+                    raise
+                reason = None
                 async for line in response.iter_lines():
                     if line.startswith(b'data: '):
                         if line == b'data: [DONE]':
@@ -93,5 +103,10 @@ class Cloudflare(AsyncGeneratorProvider, ProviderModelMixin):
                             content = json.loads(line[6:].decode())
                             if content.get("response") and content.get("response") != '</s>':
                                 yield content['response']
+                                reason = "max_tokens"
+                            elif content.get("response") == '':
+                                reason = "stop"
                         except Exception:
                             continue
+                if reason is not None:
+                    yield FinishReason(reason)

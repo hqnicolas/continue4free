@@ -25,7 +25,6 @@ conversation_url = "https://chatgpt.com/c/"
 class RequestConfig:
     cookies: dict = None
     headers: dict = None
-    access_request_id: str = None
     access_token: str = None
     proof_token: list = None
     turnstile_token: str = None
@@ -33,6 +32,7 @@ class RequestConfig:
     arkose_token: str = None
     headers: dict = {}
     cookies: dict = {}
+    data_build: str = "prod-697873d7e78bb14df6e13af3a91fa237cc4db415"
 
 class arkReq:
     def __init__(self, arkURL, arkBx, arkHeader, arkBody, arkCookies, userAgent):
@@ -44,6 +44,8 @@ class arkReq:
         self.userAgent = userAgent
 
 def get_har_files():
+    if not os.access(get_cookies_dir(), os.R_OK):
+        raise NoValidHarFileError("har_and_cookies dir is not readable")
     harPath = []
     for root, _, files in os.walk(get_cookies_dir()):
         for file in files:

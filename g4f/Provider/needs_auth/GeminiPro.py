@@ -2,23 +2,52 @@ from __future__ import annotations
 
 import base64
 import json
+import requests
 from aiohttp import ClientSession, BaseConnector
 
-from ...typing import AsyncResult, Messages, ImageType
-from ..base_provider import AsyncGeneratorProvider, ProviderModelMixin
+from ...typing import AsyncResult, Messages, ImagesType
 from ...image import to_bytes, is_accepted_format
 from ...errors import MissingAuthError
+from ...requests.raise_for_status import raise_for_status
+from ..base_provider import AsyncGeneratorProvider, ProviderModelMixin
 from ..helper import get_connector
+from ... import debug
 
 class GeminiPro(AsyncGeneratorProvider, ProviderModelMixin):
-    label = "Gemini API"
+    label = "Google Gemini API"
     url = "https://ai.google.dev"
+    login_url = "https://aistudio.google.com/u/0/apikey"
+    api_base = "https://generativelanguage.googleapis.com/v1beta"
+
     working = True
     supports_message_history = True
     needs_auth = True
+
     default_model = "gemini-1.5-pro"
     default_vision_model = default_model
-    models = [default_model, "gemini-pro", "gemini-1.5-flash", "gemini-1.5-flash-8b"]
+    fallback_models = [default_model, "gemini-2.0-flash-exp", "gemini-pro", "gemini-1.5-flash", "gemini-1.5-flash-8b"]
+    model_aliases = {
+        "gemini-flash": "gemini-1.5-flash",
+        "gemini-flash": "gemini-1.5-flash-8b",
+    }
+
+    @classmethod
+    def get_models(cls, api_key: str = None, api_base: str = api_base) -> list[str]:
+        if not cls.models:
+            try:
+                response = requests.get(f"{api_base}/models?key={api_key}")
+                raise_for_status(response)
+                data = response.json()
+                cls.models = [
+                    model.get("name").split("/").pop()
+                    for model in data.get("models")
+                    if "generateContent" in model.get("supportedGenerationMethods")
+                ]
+                cls.models.sort()
+            except Exception as e:
+                debug.log(e)
+                cls.models = cls.fallback_models
+        return cls.models
 
     @classmethod
     async def create_async_generator(
@@ -28,16 +57,16 @@ class GeminiPro(AsyncGeneratorProvider, ProviderModelMixin):
         stream: bool = False,
         proxy: str = None,
         api_key: str = None,
-        api_base: str = "https://generativelanguage.googleapis.com/v1beta",
+        api_base: str = api_base,
         use_auth_header: bool = False,
-        image: ImageType = None,
+        images: ImagesType = None,
         connector: BaseConnector = None,
         **kwargs
     ) -> AsyncResult:
-        model = cls.get_model(model)
-
         if not api_key:
             raise MissingAuthError('Add a "api_key"')
+
+        model = cls.get_model(model, api_key=api_key, api_base=api_base)
 
         headers = params = None
         if use_auth_header:
@@ -56,14 +85,15 @@ class GeminiPro(AsyncGeneratorProvider, ProviderModelMixin):
                 for message in messages
                 if message["role"] != "system"
             ]
-            if image is not None:
-                image = to_bytes(image)
-                contents[-1]["parts"].append({
-                    "inline_data": {
-                        "mime_type": is_accepted_format(image),
-                        "data": base64.b64encode(image).decode()
-                    }
-                })
+            if images is not None:
+                for image, _ in images:
+                    image = to_bytes(image)
+                    contents[-1]["parts"].append({
+                        "inline_data": {
+                            "mime_type": is_accepted_format(image),
+                            "data": base64.b64encode(image).decode()
+                        }
+                    })
             data = {
                 "contents": contents,
                 "generationConfig": {

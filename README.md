@@ -63,17 +63,24 @@ docker pull hlohaus789/g4f
    - **For comprehensive details on new features and updates, please refer to our** [Releases](https://github.com/xtekky/gpt4free/releases) **page**
    - **Installation Guide for Windows (.exe):** 💻 [Installation Guide for Windows (.exe)](#installation-guide-for-windows-exe)
    - **Join our Telegram Channel:** 📨 [telegram.me/g4f_channel](https://telegram.me/g4f_channel)
-   - **Join our Discord Group:** 💬🆕️ [discord.gg/qXA4Wf4Fsm](https://discord.gg/qXA4Wf4Fsm)
-
+   - **Join our Discord Group:** 💬🆕️ [https://discord.gg/5E39JUWUFa](https://discord.gg/5E39JUWUFa)
 
 ## 🔻 Site Takedown
 
 Is your site on this repository and you want to take it down? Send an email to takedown@g4f.ai with proof it is yours and it will be removed as fast as possible. To prevent reproduction please secure your API. 😉
 
-## 🚀 Preview
-**Take a look at our GUI on the mobile device. We connect to ChatGPT and generate an image.** 
+## 🚀 GPT4Free on HuggingFace
 
-[![Preview image](https://github.com/user-attachments/assets/9da24a87-a591-4da4-a80f-8fc7c222c92f)](https://github.com/user-attachments/assets/56c02389-61b1-4849-be7d-50b173b84ce6)
+[![HuggingSpace](https://github.com/user-attachments/assets/1d859e8a-d6fa-416f-a213-ccc26aa11e90)](https://huggingface.co/spaces/roxky/g4f)
+
+Explore our GPT4Free project on HuggingFace Spaces by clicking the link below:
+
+- [Visit GPT4Free on HuggingFace](https://huggingface.co/spaces/roxky/g4f)
+
+If you would like to create your own copy of this space, you can duplicate it using the following link:
+
+- [Duplicate GPT4Free Space](https://huggingface.co/spaces/roxky/g4f?duplicate=true)
+
 
 ## 📚 Table of Contents
    - [🆕 What's New](#-whats-new)
@@ -115,10 +122,19 @@ Is your site on this repository and you want to take it down? Send an email to t
 
 1. **Install Docker:** Begin by [downloading and installing Docker](https://docs.docker.com/get-docker/).
 
-2. **Set Up the Container:**
+2. **Check Directories:**
+
+Before running the container, make sure the necessary data directories exist or can be created. For example, you can create and set ownership on these directories by running:
+
+```bash
+mkdir -p ${PWD}/har_and_cookies ${PWD}/generated_images
+chown -R 1000:1000 ${PWD}/har_and_cookies ${PWD}/generated_images
+```
+
+3. **Set Up the Container:**
    Use the following commands to pull the latest image and start the container:
 
-```sh
+```bash
 docker pull hlohaus789/g4f
 docker run \
   -p 8080:8080 -p 1337:1337 -p 7900:7900 \
@@ -128,7 +144,9 @@ docker run \
   hlohaus789/g4f:latest
 ```
 
-To run the slim docker image. Use this command:
+##### Running the Slim Docker Image
+
+Use the following command to run the Slim Docker image. This command also updates the `g4f` package at startup and installs any additional dependencies:
 
 ```bash
 docker run \
@@ -138,16 +156,15 @@ docker run \
   hlohaus789/g4f:latest-slim \
   rm -r -f /app/g4f/ \
   && pip install -U g4f[slim] \
-  && python -m g4f.cli api --gui --debug
+  && python -m g4f --debug
 ```
-It also updates the `g4f` package at startup and installs any new required dependencies.
 
-3. **Access the Client:**
+4. **Access the Client:**
 
    - To use the included client, navigate to: [http://localhost:8080/chat/](http://localhost:8080/chat/) or [http://localhost:1337/chat/](http://localhost:1337/chat/)
    - Or set the API base for your client to: [http://localhost:1337/v1](http://localhost:1337/v1)
 
-4. **(Optional) Provider Login:**
+5. **(Optional) Provider Login:**
    If required, you can access the container's desktop here: http://localhost:7900/?autoconnect=1&resize=scale&password=secret for provider login purposes.
 
 #### Installation Guide for Windows (.exe)
@@ -163,17 +180,27 @@ To ensure the seamless operation of our application, please follow the instructi
 
 By following these steps, you should be able to successfully install and run the application on your Windows system. If you encounter any issues during the installation process, please refer to our Issue Tracker or try to get contact over Discord for assistance.
 
-Run the **Webview UI** on other Platforms:
+---
 
-- [/docs/guides/webview](docs/webview.md)
+### Learn More About the GUI
 
-##### Use your smartphone:
+For detailed instructions on how to set up, configure, and use the GPT4Free GUI, refer to the **GUI Documentation**:
 
-Run the Web UI on Your Smartphone:
+- [GUI Documentation](docs/gui.md)
 
-- [/docs/guides/phone](docs/guides/phone.md)
+This guide includes step-by-step details on provider selection, managing conversations, using advanced features like speech recognition, and more.
 
-#### Use python
+---
+
+### Use Your Smartphone
+
+Run the Web UI on your smartphone for easy access on the go. Check out the dedicated guide to learn how to set up and use the GUI on your mobile device:
+
+- [Run on Smartphone Guide](docs/guides/phone.md)
+
+---
+
+### Use python
 
 ##### Prerequisites:
 
@@ -210,7 +237,7 @@ client = Client()
 response = client.chat.completions.create(
     model="gpt-4o-mini",
     messages=[{"role": "user", "content": "Hello"}],
-    # Add any other necessary parameters
+    web_search = False
 )
 print(response.choices[0].message.content)
 ```
@@ -228,21 +255,21 @@ response = client.images.generate(
     model="flux",
     prompt="a white siamese cat",
     response_format="url"
-    # Add any other necessary parameters
 )
 
 image_url = response.data[0].url
 print(f"Generated image URL: {image_url}")
 ```
 
-[![Image with cat](/docs/cat.jpeg)](docs/client.md)
+[![Image with cat](/docs/images/cat.jpeg)](docs/client.md)
 
 #### **Full Documentation for Python API**
    - **New:**
       - **Requests API from G4F:** [/docs/requests](docs/requests.md)
       - **Client API from G4F:** [/docs/client](docs/client.md)
       - **AsyncClient API from G4F:** [/docs/async_client](docs/async_client.md)
-   
+      - **File API from G4F:** [/docs/file](docs/file.md)
+
    - **Legacy:**
       - **Legacy API with python modules:** [/docs/legacy](docs/legacy.md)
 
@@ -271,6 +298,10 @@ The **Interference API** enables seamless integration with OpenAI's services thr
 This API is designed for straightforward implementation and enhanced compatibility with other OpenAI integrations.
 
 ### Configuration
+
+#### Authentication
+
+Refer to the [G4F Authentication Setup Guide](docs/authentication.md) for detailed instructions on setting up authentication.
 
 #### Cookies
 

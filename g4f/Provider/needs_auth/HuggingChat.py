@@ -8,29 +8,36 @@ try:
 except ImportError:
     has_curl_cffi = False
 
+from ..base_provider import ProviderModelMixin, AbstractProvider
+from ..helper import format_prompt
 from ...typing import CreateResult, Messages, Cookies
 from ...errors import MissingRequirementsError
 from ...requests.raise_for_status import raise_for_status
+from ...providers.response import JsonConversation, ImageResponse, Sources
 from ...cookies import get_cookies
-from ..base_provider import ProviderModelMixin, AbstractProvider, BaseConversation
-from ..helper import format_prompt
 from ... import debug
 
-class Conversation(BaseConversation):
+class Conversation(JsonConversation):
     def __init__(self, conversation_id: str, message_id: str):
-        self.conversation_id = conversation_id
-        self.message_id = message_id
+        self.conversation_id: str = conversation_id
+        self.message_id: str = message_id
 
 class HuggingChat(AbstractProvider, ProviderModelMixin):
     url = "https://huggingface.co/chat"
+    
     working = True
     supports_stream = True
     needs_auth = True
-    default_model = "meta-llama/Meta-Llama-3.1-70B-Instruct"
-
+    
+    default_model = "Qwen/Qwen2.5-72B-Instruct"
+    default_image_model = "black-forest-labs/FLUX.1-dev"
+    image_models = [    
+        "black-forest-labs/FLUX.1-dev",
+        "black-forest-labs/FLUX.1-schnell",
+    ]
     models = [
-        'Qwen/Qwen2.5-72B-Instruct',
-        'meta-llama/Meta-Llama-3.1-70B-Instruct',
+        default_model,
+        'meta-llama/Llama-3.3-70B-Instruct',
         'CohereForAI/c4ai-command-r-plus-08-2024',
         'Qwen/QwQ-32B-Preview',
         'nvidia/Llama-3.1-Nemotron-70B-Instruct-HF',
@@ -39,11 +46,12 @@ class HuggingChat(AbstractProvider, ProviderModelMixin):
         'NousResearch/Hermes-3-Llama-3.1-8B',
         'mistralai/Mistral-Nemo-Instruct-2407',
         'microsoft/Phi-3.5-mini-instruct',
+        *image_models
     ]
-
     model_aliases = {
+        ### Chat ###
         "qwen-2.5-72b": "Qwen/Qwen2.5-72B-Instruct",
-        "llama-3.1-70b": "meta-llama/Meta-Llama-3.1-70B-Instruct",
+        "llama-3.3-70b": "meta-llama/Llama-3.3-70B-Instruct",
         "command-r-plus": "CohereForAI/c4ai-command-r-plus-08-2024",
         "qwq-32b": "Qwen/QwQ-32B-Preview",
         "nemotron-70b": "nvidia/Llama-3.1-Nemotron-70B-Instruct-HF",
@@ -52,6 +60,10 @@ class HuggingChat(AbstractProvider, ProviderModelMixin):
         "hermes-3": "NousResearch/Hermes-3-Llama-3.1-8B",
         "mistral-nemo": "mistralai/Mistral-Nemo-Instruct-2407",
         "phi-3.5-mini": "microsoft/Phi-3.5-mini-instruct",
+
+        ### Image ###
+        "flux-dev": "black-forest-labs/FLUX.1-dev",
+        "flux-schnell": "black-forest-labs/FLUX.1-schnell",
     }
 
     @classmethod
@@ -109,7 +121,7 @@ class HuggingChat(AbstractProvider, ProviderModelMixin):
             "is_retry": False,
             "is_continue": False,
             "web_search": web_search,
-            "tools": []
+            "tools": ["000000000000000000000001"] if model in cls.image_models else [],
         }
 
         headers = {
@@ -142,34 +154,40 @@ class HuggingChat(AbstractProvider, ProviderModelMixin):
         raise_for_status(response)
 
         full_response = ""
+        sources = None
         for line in response.iter_lines():
             if not line:
                 continue
             try:
                 line = json.loads(line)
             except json.JSONDecodeError as e:
-                print(f"Failed to decode JSON: {line}, error: {e}")
+                debug.log(f"Failed to decode JSON: {line}, error: {e}")
                 continue
-            
             if "type" not in line:
                 raise RuntimeError(f"Response: {line}")
-            
             elif line["type"] == "stream":
                 token = line["token"].replace('\u0000', '')
                 full_response += token
                 if stream:
                     yield token
-            
             elif line["type"] == "finalAnswer":
                 break
-        
-        full_response = full_response.replace('<|im_end|', '').replace('\u0000', '').strip()
+            elif line["type"] == "file":
+                url = f"https://huggingface.co/chat/conversation/{conversation.conversation_id}/output/{line['sha']}"
+                yield ImageResponse(url, alt=messages[-1]["content"], options={"cookies": cookies})
+            elif line["type"] == "webSearch" and "sources" in line:
+                sources = Sources(line["sources"])
 
+        full_response = full_response.replace('<|im_end|', '').strip()
         if not stream:
             yield full_response
+        if sources is not None:
+            yield sources
 
     @classmethod
     def create_conversation(cls, session: Session, model: str):
+        if model in cls.image_models:
+            model = cls.default_model
         json_data = {
             'model': model,
         }

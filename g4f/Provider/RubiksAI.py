@@ -16,13 +16,14 @@ class RubiksAI(AsyncGeneratorProvider, ProviderModelMixin):
     label = "Rubiks AI"
     url = "https://rubiks.ai"
     api_endpoint = "https://rubiks.ai/search/api/"
+    
     working = True
     supports_stream = True
     supports_system_message = True
     supports_message_history = True
 
     default_model = 'gpt-4o-mini'
-    models = [default_model, 'gpt-4o', 'o1-mini', 'claude-3.5-sonnet', 'grok-beta', 'gemini-1.5-pro', 'nova-pro']
+    models = [default_model, 'gpt-4o', 'o1-mini', 'claude-3.5-sonnet', 'grok-beta', 'gemini-1.5-pro', 'nova-pro', "llama-3.1-70b-versatile"]
     model_aliases = {
         "llama-3.1-70b": "llama-3.1-70b-versatile",
     }

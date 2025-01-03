@@ -12,17 +12,14 @@ from .helper import format_prompt
 class ChatGptEs(AsyncGeneratorProvider, ProviderModelMixin):
     url = "https://chatgpt.es"
     api_endpoint = "https://chatgpt.es/wp-admin/admin-ajax.php"
+    
     working = True
     supports_stream = True
     supports_system_message = True
     supports_message_history = True
     
     default_model = 'gpt-4o'
-    models = ['gpt-4o', 'gpt-4o-mini', 'chatgpt-4o-latest']
-    
-    model_aliases = {
-        "gpt-4o": "chatgpt-4o-latest",
-    }
+    models = ['gpt-4', 'gpt-4o', 'gpt-4o-mini']
 
     @classmethod
     def get_model(cls, model: str) -> str:
@@ -83,4 +80,6 @@ class ChatGptEs(AsyncGeneratorProvider, ProviderModelMixin):
             async with session.post(cls.api_endpoint, headers=headers, data=payload) as response:
                 response.raise_for_status()
                 result = await response.json()
+                if "Du musst das Kästchen anklicken!" in result['data']:
+                    raise ValueError(result['data'])
                 yield result['data']
